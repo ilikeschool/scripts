@@ -1,0 +1,21 @@
+#! /bin/csh -f
+#
+# Shell script to convert input image to a png format.
+# Output is to current directory
+# Currently no checking is implemented and should be in the future
+
+set inpfile=$1
+
+
+set filename=$inpfile:r:t
+
+set outpfile=$filename.png
+
+convert -density 150 -units PixelsPerInch -level 100% $inpfile $outpfile
+
+## output test
+#echo $inpfile
+#echo $filename
+#echo $outpfile
+
+
