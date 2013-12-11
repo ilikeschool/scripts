@@ -1,0 +1,8 @@
+#!/bin/tcsh
+setenv PATH /nfs/home/ahadiashar/sw/bin:/usr/local/bin:/bin:/usr/bin:/usr/sbin/tools/usr/bin
+
+#build c-lightxw
+setenv P4CLIENT bvlab-ahadiashar-c-lightxw
+cd /nfs/home/ahadiashar/p4/c-lightxw/lightx/a1
+p4 sync
+make clean && make

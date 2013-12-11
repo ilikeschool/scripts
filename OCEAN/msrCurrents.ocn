@@ -1,0 +1,71 @@
+fid=infile("~/project/smsa/current_table_smsd.txt")
+fidOut=outfile("blockCurrents_smsd_dcOp.txt")
+while( fscanf(fid "%s %s %s %s" s1 s2 s3 s4)==4
+   printf("%s\t" s1)
+   fprintf(fidOut "%s\t" s1)
+   printf("%s\t" s2)
+   fprintf(fidOut "%s\t" s2)
+   printf("%s\t" s3)
+   fprintf(fidOut "%s\t" s3)
+   inet=0.0
+   remString=s4
+   remLen=strlen(remString)
+   posIndx=nindex(remString "+")
+   negIndx=nindex(remString "-")
+   if( posIndx==1
+   then
+      netSign=1
+   else
+      netSign=-1
+   )
+   remString=substring(remString 2 remLen-2+1)
+   remLen=strlen(remString)
+   posIndx=nindex(remString "+")
+   negIndx=nindex(remString "-")
+   while( posIndx!=nil || negIndx!=nil
+      if( posIndx==nil
+      then
+         netName=substring(remString 1 negIndx-1)
+         inet=inet+netSign*IDC(netName)
+         remString=substring(remString negIndx+1 remLen-negIndx)
+         remLen=strlen(remString)
+         netSign=-1
+      else 
+         if( negIndx==nil
+         then
+            netName=substring(remString 1 posIndx-1)
+            inet=inet+netSign*IDC(netName)
+            remString=substring(remString posIndx+1 remLen-posIndx)
+            remLen=strlen(remString)
+            netSign=1
+         else
+            if( posIndx>negIndx
+            then
+               netName=substring(remString 1 negIndx-1)
+               inet=inet+netSign*IDC(netName)
+               remString=substring(remString negIndx+1 remLen-negIndx)
+               remLen=strlen(remString)
+               netSign=-1
+            else
+               netName=substring(remString 1 posIndx-1)
+               inet=inet+netSign*IDC(netName)
+               remString=substring(remString posIndx+1 remLen-posIndx)
+               remLen=strlen(remString)
+               netSign=1
+            )
+         )
+      )
+      posIndx=nindex(remString "+")
+      negIndx=nindex(remString "-")
+;      printf("netName=%s\n" netName)
+;      printf("netSign=%d\n" netSign)
+;      printf("remString=%s\n" remString)
+   )
+   inet=inet+netSign*IDC(remString)
+   printf("%.3f\t" 1e3*inet)
+   fprintf(fidOut "%.3f\t" 1e3*inet)
+   printf("%s\n" s4)
+   fprintf(fidOut "%s\n" s4)
+)
+close(fid)
+close(fidOut)

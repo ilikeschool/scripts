@@ -1,0 +1,5 @@
+#!/bin/tcsh
+setenv bumps /proj/avnera/tsmc13rf_common/cds_master/nobumps
+source /proj/lwa/cds_master/project.cshrc
+cd {$PROJ_ROOT}/lwa/work_libs/`whoami`/cds
+soscmd update
