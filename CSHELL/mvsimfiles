@@ -1,0 +1,13 @@
+#!/bin/csh -f
+#Moves data files and renames with file
+
+foreach filename ( *.dat )
+    ##      Read last access date
+    set datein=`stat -c %x $filename`
+    set filedate=`date -d "$datein" +%Y%m%d%H%M`
+    set filebase=`basename $filename .dat`
+    ## Move to new filename and archive
+    mv $filename ../$filedate'_'$filebase'.csv'
+    cp ../$filedate'_'$filebase'.csv' ../archive
+end
+

@@ -1,0 +1,41 @@
+#!/bin/csh -f
+#Moves logs to appropriate folders and removes input csv
+
+if ($#argv == 0) then
+##      Test whether command-line argument is present (non-empty)
+    echo "Usage: $0 filename other(optional)"
+    echo "moves output to subdirectory and archives input file"
+    goto done
+endif
+##      Save command line args
+set filename=$1
+if ($#argv > 1) then
+    set outputdir=OTHER
+else
+    set outputdir=MODEGAIN
+endif
+##      Move output files
+echo "Moving output files to $outputdir"
+if ($outputdir == OTHER) then
+    mv $filename\_stats\_sum.csv SUMMARY
+    mv $filename\_* $outputdir
+else
+    mv $filename\_*\MODE\_0\_GAIN\_1* MODE\ 0\ GAIN\ 1/
+    mv $filename\_*\MODE\_0\_GAIN\_2* MODE\ 0\ GAIN\ 2/
+    mv $filename\_*\MODE\_1\_GAIN\_1* MODE\ 1\ GAIN\ 1/
+    mv $filename\_*\MODE\_1\_GAIN\_2* MODE\ 1\ GAIN\ 2/
+    mv $filename\_stats\_sum.csv SUMMARY
+endif
+##      Archive input file
+if ( -e archive/$filename.csv ) then
+    echo "File is already archived, deleting"
+    rm $filename.csv
+else
+    echo "Archiving file"
+    mv $filename.csv archive/
+endif
+##           Labels to jump to exit OK (done) or not OK (error)
+done:
+    exit 0
+error:
+    exit 1

@@ -1,0 +1,22 @@
+#! /bin/csh -f
+#Mass proc corners
+
+if ($#argv == 0) then
+##      Test whether command-line argument is present (non-empty)
+    echo "Usage: $0 patternmatch"
+    echo "Runs proc_corners for all given files"
+    goto done
+endif
+##      Save commnand line args
+set filearg="$*"
+
+foreach filename ($filearg)
+    echo "Processing $filename"
+    python ~/scripts/python/proc_corners.py $filename
+end
+
+##      Labels to jump to exit OK (done) or not OK (error)
+done:
+    exit 0
+error:
+    exit 1
