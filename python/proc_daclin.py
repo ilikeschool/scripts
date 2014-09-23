@@ -10,7 +10,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 
 dacBits = 7
-thermBits = 3 
+thermBits = 4 
 
 #fileName = "20140822_tb_hp_dac_linearity_mc_ideal_bias.csv"
 
@@ -25,11 +25,11 @@ dataList  = []
 with open(fileName,'rb') as f:
     reader = csv.reader(f)
     header = reader.next()
-    indexList = [int(float(i)) for i in header[1:dacBits+2^thermBits-1+4]]
+    indexList = [int(float(i)) for i in header[1:dacBits+2**thermBits-1-thermBits+4]]
     for row in reader:
         dirList=[]
-        dirList.append([float(i) for i in row[1:dacBits+2^thermBits-1+4]])
-        dirList.append([float(i) for i in row[dacBits+2^thermBits-1+4:]])
+        dirList.append([float(i) for i in row[1:dacBits+2**thermBits-1-thermBits+4]])
+        dirList.append([float(i) for i in row[dacBits+2**thermBits-1-thermBits+4:]])
         dataList.append(dirList)
 
 indexArray = np.array(indexList)
@@ -57,7 +57,7 @@ if thermBits > 0:
     for i,bit in enumerate(bitsArray):
         bitSum = np.multiply(bit[dacBits-thermBits:dacBits],thermWeights).sum()
         thermCode = [1 if bitSum>=j else 0 for j in range(1,2**thermBits)]
-        newBit = np.append(np.delete(bit,np.s_[4:7]),thermCode)
+        newBit = np.append(np.delete(bit,np.s_[dacBits-thermBits:dacBits]),thermCode)
         newBitsArray.append(newBit)
     bitsArray = np.array(newBitsArray)
 
