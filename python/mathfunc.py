@@ -37,3 +37,7 @@ def calcInlDnl_ideal(xDataIn,yDataIn,lsb):
     for x in range(1,len(yDataIn)):
         dnl.append((yDataIn[x]-yDataIn[x-1])/lsb-1)
     return inl,numpy.array(dnl)
+
+
+def calcInlDnl(xDataIn,yDataIn):
+    return calcInlDnl_bestfit(xDataIn,yDataIn)
