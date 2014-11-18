@@ -10,10 +10,10 @@ make clean && make
 
 #build c-lxww
 setenv P4CLIENT bvlab-ahadiashar-c-lxww
-setenv LXSDKDIR /home/ahadiashar/p4/lxww/lightxw/a0/bld/sdk/AvneraExternal/runtime
-setenv LIN_BASE /home/ahadiashar/p4/lxww/lightxw
 cd /nfs/home/ahadiashar/p4/c-lxww/lightxw/a0
 p4 sync
 make clean && make sdk
-make -C sdk/test_apps/bringup
-make -C sdk/test_apps/pbench
+cd sdk
+source localsdk.tsh
+make -C test_apps/bringup
+make -C test_apps/pbench
