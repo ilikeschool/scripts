@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import csv, re
 import numpy
+import logging
 from itertools import product
 
 ###############################################################################
@@ -63,7 +64,10 @@ def readMeasures(fileName):
             for msrIndx in xrange(specStartIndx,rowLen,1):
                 specIndx=msrIndx-specStartIndx
                 key[specStartIndx] = specList[specIndx]
-                msrDict[tuple(key)] = float(row[msrIndx])
+                if float(row[msrIndx]) == -9.999e+99:
+                    msrDict[tuple(key)] = numpy.nan
+                else:
+                    msrDict[tuple(key)] = float(row[msrIndx])
     return msrDict,cornDict,cornList,modeDict,modeList,specDict,specList
 
 ###############################################################################
@@ -71,6 +75,7 @@ def readMeasures(fileName):
 # Calculates sensitivity of measurement to independent variables
 # Inputs  spec - specification to calc
 #         modeKey - Key of current non-corner variable
+#         modeList - Ordered list of mode names
 #         msrDict - Dictionary containing all measurements
 #         cornDict - Dictionary containing all corner iterations
 #         cornList - Ordered list of corner names
@@ -78,7 +83,16 @@ def readMeasures(fileName):
 #         sortedDeltaList - List of parameters sorted by largest sensitivity
 ###############################################################################
 
-def calcMeasures(spec, modeKey, msrDict, cornDict, cornList):
+def calcMeasures(spec, modeKey, modeList, msrDict, cornDict, cornList):
+    logger = logging.getLogger(__name__)
+    
+    modeTxtList = []
+    for l,k in zip(modeList,modeKey):
+        modeTxtList.append('='.join([l,k]))
+    modeTxt = ', '.join(modeTxtList)
+    
+    logger.debug('Calculating %s measures for mode %s', spec, modeTxt)
+    
     deltasDict = {}
     deltaDict = {}
     sortedDeltaList = []
@@ -86,7 +100,9 @@ def calcMeasures(spec, modeKey, msrDict, cornDict, cornList):
     msr1Key.append(spec)
     msr2Key = list(cornList+modeKey)
     msr2Key.append(spec)
+    errorFlag = False
     for cornIndx,corn in enumerate(cornList):
+        logger.debug('Acting on corner %s', corn)
         for otherCorn in product('01',repeat=len(cornList)-1):
             otherIndx=0
             for cornJndx,cornJ in enumerate(cornList):
@@ -98,11 +114,21 @@ def calcMeasures(spec, modeKey, msrDict, cornDict, cornList):
                     msr2Key[cornJndx] = cornDict[cornJ][int(otherCorn[otherIndx])]
                     otherIndx += 1
             #print msr1Key, msr2Key
-            if corn in deltasDict.keys():
-                deltasDict[corn].append(msrDict[tuple(msr2Key)]-msrDict[tuple(msr1Key)])
+            if numpy.isnan(msrDict[tuple(msr1Key)]) or numpy.isnan(msrDict[tuple(msr2Key)]):
+                logger.debug('Found error in data for corn %s, %s', corn, cornJ)
+                errorFlag = True
             else:
-                deltasDict[corn] = [msrDict[tuple(msr2Key)]-msrDict[tuple(msr1Key)]]
-    
+                if corn in deltasDict.keys():
+                    deltasDict[corn].append(msrDict[tuple(msr2Key)]-msrDict[tuple(msr1Key)])
+                else:
+                    deltasDict[corn] = [msrDict[tuple(msr2Key)]-msrDict[tuple(msr1Key)]]
+
+    for corn in list(set(cornList)-set(deltasDict.keys())):
+            deltasDict[corn] = [0]
+
+    if errorFlag:
+        print 'Warning bad data: ' + modeTxt + ', SPEC=' + spec
+
     for key in deltasDict.keys():
         deltaDict[key] = (abs(numpy.mean(deltasDict[key])), numpy.std(deltasDict[key]))
     

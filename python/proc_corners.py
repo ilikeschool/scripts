@@ -50,8 +50,8 @@ with open(fileName_sum_csv,'wb') as fsum:
             writer = csv.writer(f)
             writer.writerow(header)
             for spec in specList:
-                [deltaDict,sortedDeltaList] = m.calcMeasures(spec,modeKey,msrDict,
-                                                                cornDict,cornList)
+                [deltaDict,sortedDeltaList] = m.calcMeasures(spec,modeKey,modeList,
+                                                        msrDict,cornDict,cornList)
                 [measure,msrTickLabels,msrXaxLabels,msrLegText] = m.sortMeasures(
                             spec,sortedDeltaList,modeKey,msrDict,cornDict,cornList)
                 #PRINT MEASURES
@@ -77,7 +77,7 @@ with open(fileName_sum_csv,'wb') as fsum:
                 plt.yticks(fontsize=gcaFont)
                 plt.ylabel(msrYaxLabel,fontsize=gcaFont)
                 plt.xlabel(msrXaxLabels,fontsize=gcaFont)
-                plt.legend(loc=msrLegLoc,prop={'size':legFont})
+                #plt.legend(loc=msrLegLoc,prop={'size':legFont})
                 plt.title(spec,fontsize=titleFont)
                 plt.suptitle(' / '.join(modeTxtList).replace('_','=') + ' ' + '(' + fileName_noExt + ')',fontsize=supTitleFont)
                 pp.savefig()
@@ -99,7 +99,7 @@ with open(fileName_sum_csv,'wb') as fsum:
                     if x > specHi:
                         specHi = x
                         specHiKey = xkey
-                specAvg = numpy.mean(specVals)
+                specAvg = numpy.nanmean(specVals)
                 maxDelta = max(data[0] for data in deltaDict.values())
                 deltaVec = []
                 for corn in cornList:
